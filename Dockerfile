@@ -6,9 +6,7 @@ FROM ubuntu:20.04
 ENV USERNAME cube-community
 ENV ROOT_PASSWORD dev-container-password
 
-# These versions most likely need to correspond to the code copied from the official node image with some SHAs etc.
-# not 100% sure though, but if you check it feel free to update this comment.
-# for now for the sake of the above ensure you set these to NODE_VERSION=12.22.1 and YARN_VERSION=1.22.5
+# Remember to specify these arguments
 ARG NODE_VERSION
 ARG YARN_VERSION
 
