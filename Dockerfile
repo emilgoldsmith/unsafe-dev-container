@@ -17,30 +17,29 @@ RUN bash -i -c 'echo -e "y\nY" | unminimize'
 RUN groupadd --gid 1000 $USERNAME \
     && useradd --uid 1000 --gid $USERNAME --shell /bin/bash --create-home $USERNAME \
     && echo "root:$ROOT_PASSWORD" | chpasswd root \
-    # Missing dependencies for installing node and yarn
+# Missing dependencies for installing node and yarn
     && apt-get update -y \
-    # DEBIAN_FRONTEND is for making configuring tzdata to work
+# DEBIAN_FRONTEND is for making configuring tzdata to work
     && DEBIAN_FRONTEND=noninteractive apt-get -y install \
         gpg \
         curl \
         xz-utils \
-    # E2E browser testing (Cypress.io anyway) dependencies
+# E2E browser testing (Cypress.io anyway) dependencies
         libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb \
-    # Nice to haves for developer experience
+# Nice to haves for developer experience
         git \
         vim \
         man \
-    # Installing locales
+# Installing locales
         locales \
     && locale-gen en_GB en_US en_GB.UTF-8 en_US.UTF-8 \
-    # Installing the google cloud CLI (taken from https://cloud.google.com/sdk/docs/install#deb)
+# Installing the google cloud CLI (taken from https://cloud.google.com/sdk/docs/install#deb)
     && echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
     && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - \
     && apt-get update -y \
     && apt-get install google-cloud-sdk -y \
-    # And some browsers in case we would like that for testing
+# And some browsers in case we would like that for testing
     && apt-get install -y firefox \
-
 # NODE INSTALL STARTS HERE
     && ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && case "${dpkgArch##*-}" in \
@@ -52,20 +51,19 @@ RUN groupadd --gid 1000 $USERNAME \
       i386) ARCH='x86';; \
       *) echo "unsupported architecture"; exit 1 ;; \
     esac \
-    # gpg keys listed at https://github.com/nodejs/node#release-keys
+# gpg keys listed at https://github.com/nodejs/node#release-keys
     && set -ex \
     && for key in \
       4ED778F539E3634C779C87C6D7062848A1AB005C \
-      94AE36675C464D64BAFA68DD7434390BDBE9B9C5 \
+      141F07595B7B3FFE74309A937405533BE57C7D57 \
       74F12602B6F1C4E913FAA37AD3A89613643B6201 \
-      71DCFD284A79C3B38668286BC97EC7A07EDE3FC1 \
+      DD792F5973C6DE52C432CBDAC77ABFA00DDBF2B7 \
+      61FC681DFB92A079F1685E77973F295594EC4689 \
       8FCCA13FEF1D0C2E91008E09770F7A9A5AE15600 \
       C4F0DFFF4E8C1A8236409D08E73BC641CC11F4C8 \
+      890C08DB8579162FEE0DF9DB8BEAB4DFCF555EF4 \
       C82FA3AE1CBEDC6BE46B9360C43CEC45C17AB93C \
-      DD8F2338BAE7501E3DD5AC78C273792F7D83545D \
-      A48C2BEE680E841632CD4E44F07496B3EB3C1762 \
       108F52B48DB57BB0CC439B2997B01419BD92F80A \
-      B9E2F5981AA6E0CD28160D9FF13993A75599653C \
     ; do \
       gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$key" || \
       gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "$key" ; \
@@ -77,10 +75,10 @@ RUN groupadd --gid 1000 $USERNAME \
     && tar -xJf "node-v$NODE_VERSION-linux-$ARCH.tar.xz" -C /usr/local --strip-components=1 --no-same-owner \
     && rm "node-v$NODE_VERSION-linux-$ARCH.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt \
     && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
-    # smoke tests
+# smoke tests
     && node --version \
     && npm --version \
-    ## YARN INSTALL STARTS HERE
+## YARN INSTALL STARTS HERE
     && set -ex \
     && for key in \
       6A010C5166006599AA17F08146C2130DFD2497F5 \
@@ -96,7 +94,7 @@ RUN groupadd --gid 1000 $USERNAME \
     && ln -s /opt/yarn-v$YARN_VERSION/bin/yarn /usr/local/bin/yarn \
     && ln -s /opt/yarn-v$YARN_VERSION/bin/yarnpkg /usr/local/bin/yarnpkg \
     && rm yarn-v$YARN_VERSION.tar.gz.asc yarn-v$YARN_VERSION.tar.gz \
-    # smoke test
+# smoke test
     && yarn --version
 
 # Install thefuck shell utility
